@@ -264,7 +264,7 @@ def log_validation(vae, text_encoder, tokenizer, clip_image_encoder, transformer
 
             # save_frames_path = os.path.join(args.output_dir, f"sample/sample-{global_step}-frames")
             # os.makedirs(save_frames_path, exist_ok=True)
-            fps = 16
+            fps = 30
             video_path = os.path.join(args.output_dir, f"sample/sample-{global_step}.mp4")
             # save_videos_grid_png_and_mp4(sample, os.path.join(args.output_dir, f"sample/sample-{global_step}.mp4"), n_rows=sample.shape[0], fps=fps, save_frames_path=save_frames_path)
             save_videos_grid(sample, video_path, fps=fps)
@@ -1405,4 +1405,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
