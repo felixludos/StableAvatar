@@ -72,18 +72,18 @@ CUDA_VISIBLE_DEVICES=0 python inference.py \
   --validation_driven_audio_path=$AUDIO \
   --output_dir="output_infer/$TIMESTAMP/" \
   --validation_prompts="$PROMPT" \
-  --seed=42 \
+  --seed=11 \
   --ulysses_degree=1 \
   --ring_degree=1 \
-  --motion_frame=25 \
-  --sample_steps=20 \
+  --motion_frame 25 \
+  --sample_steps 20 \
   --width=512 \
   --height=512 \
   --overlap_window_length=5 \
   --clip_sample_n_frames=81 \
   --GPU_memory_mode="model_full_load" \
-  --sample_text_guide_scale=1.0 \
-  --sample_audio_guide_scale=5.0
+  --sample_text_guide_scale 5.0 \
+  --sample_audio_guide_scale 5.0
 
 echo "Generation completed. Processing video..."
 
