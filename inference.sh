@@ -50,11 +50,18 @@ export TOKENIZERS_PARALLELISM=false
 #   --sample_audio_guide_scale=5.0
 
 
-export IMAGE="/mnt/c/Users/anwan/OneDrive/Khan/maity/vidLink/local_data/avatars/sales_executive/executive.png"
-export AUDIO="/mnt/c/Users/anwan/OneDrive/Khan/maity/vidLink/video_generators/multitalk/local_data/sales_test/executive/s1.wav"
+IMAGE="/mnt/c/Users/anwan/OneDrive/Khan/maity/vidLink/local_data/avatars/sales_executive/executive.png"
+AUDIO="/mnt/c/Users/anwan/OneDrive/Khan/maity/vidLink/video_generators/multitalk/local_data/sales_test/executive/s1.wav"
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 
+PROMPT="A professional speaks confidently directly to the camera."
+PROMPT="A professional cinematic medium shot of a woman with wavy brunette hair wearing a navy blazer and cream blouse. She is standing in a brightly lit, modern office hallway with a blurred glass background. She speaks directly to the camera with a calm, articulate, and professional tone. Her facial movements are natural, with subtle head tilts and expressive eyes that convey confidence. The lighting is soft and flattering, emphasizing a high-resolution, realistic aesthetic."
 
 export MODEL_NAME="checkpoints/Wan2.1-Fun-V1.1-1.3B-InP"
+
+echo "Saving output to output_infer/$TIMESTAMP/"
+
+echo "Starting generation..."
 
 CUDA_VISIBLE_DEVICES=0 python inference.py \
   --config_path="deepspeed_config/wan2.1/wan_civitai.yaml" \
@@ -63,13 +70,13 @@ CUDA_VISIBLE_DEVICES=0 python inference.py \
   --pretrained_wav2vec_path="checkpoints/wav2vec2-base-960h" \
   --validation_reference_path=$IMAGE \
   --validation_driven_audio_path=$AUDIO \
-  --output_dir="output_infer" \
-  --validation_prompts="A professional speaks confidently directly to the camera." \
+  --output_dir="output_infer/$TIMESTAMP/" \
+  --validation_prompts="$PROMPT" \
   --seed=42 \
   --ulysses_degree=1 \
   --ring_degree=1 \
   --motion_frame=25 \
-  --sample_steps=50 \
+  --sample_steps=20 \
   --width=512 \
   --height=512 \
   --overlap_window_length=5 \
@@ -78,10 +85,13 @@ CUDA_VISIBLE_DEVICES=0 python inference.py \
   --sample_text_guide_scale=3.0 \
   --sample_audio_guide_scale=5.0
 
+echo "Generation completed. Processing video..."
+
 SIZE=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${IMAGE})
 
-ffmpeg -i output_infer/video_without_audio.mp4 -i $AUDIO -c:v copy -c:a aac -shortest output_infer/video_with_audio.mp4
+ffmpeg -i output_infer/$TIMESTAMP/video_without_audio.mp4 -i $AUDIO -c:v copy -c:a aac -shortest output_infer/$TIMESTAMP/video_with_audio.mp4
 
-ffmpeg -i output_infer/video_with_audio.mp4 -vf "scale=$SIZE" output_infer/output_video.mp4
+ffmpeg -i output_infer/$TIMESTAMP/video_with_audio.mp4 -vf "scale=$SIZE" output_infer/$TIMESTAMP/output_video.mp4
 
+echo "Video processing completed. Output saved to output_infer/$TIMESTAMP/output_video.mp4"
 
