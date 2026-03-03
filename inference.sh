@@ -59,7 +59,7 @@ PROMPT="A professional cinematic medium shot of a woman with wavy brunette hair 
 
 export MODEL_NAME="checkpoints/Wan2.1-Fun-V1.1-1.3B-InP"
 
-echo "Saving output to output_infer/$TIMESTAMP/"
+echo "Saving output to temp dir: output_infer/$TIMESTAMP/"
 
 echo "Starting generation..."
 
@@ -82,7 +82,7 @@ CUDA_VISIBLE_DEVICES=0 python inference.py \
   --overlap_window_length=5 \
   --clip_sample_n_frames=81 \
   --GPU_memory_mode="model_full_load" \
-  --sample_text_guide_scale=3.0 \
+  --sample_text_guide_scale=1.0 \
   --sample_audio_guide_scale=5.0
 
 echo "Generation completed. Processing video..."
@@ -91,7 +91,11 @@ SIZE=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -o
 
 ffmpeg -i output_infer/$TIMESTAMP/video_without_audio.mp4 -i $AUDIO -c:v copy -c:a aac -shortest output_infer/$TIMESTAMP/video_with_audio.mp4
 
-ffmpeg -i output_infer/$TIMESTAMP/video_with_audio.mp4 -vf "scale=$SIZE" output_infer/$TIMESTAMP/output_video.mp4
+ffmpeg -i output_infer/$TIMESTAMP/video_with_audio.mp4 -vf "scale=$SIZE" output_infer/${TIMESTAMP}_output_video.mp4
 
-echo "Video processing completed. Output saved to output_infer/$TIMESTAMP/output_video.mp4"
+echo "Cleaning up temporary files..."
+
+rm -rf output_infer/$TIMESTAMP
+
+echo "Video processing completed. Output saved to output_infer/${TIMESTAMP}_output_video.mp4"
 
